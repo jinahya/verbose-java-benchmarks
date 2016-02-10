@@ -16,7 +16,7 @@
 package com.github.jinahya.verbose.hex;
 
 
-import static com.github.jinahya.verbose.hex.DecodedBytes.BYTES;
+import static com.github.jinahya.verbose.hex.Decoded.BYTES;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -52,9 +52,9 @@ public class WritableHexChannelBenchmark {
 
 
     @Benchmark
-    public void aux(final DecodedBytes decoded) throws IOException {
+    public void aux(final Decoded decoded) throws IOException {
         try (ReadableByteChannel readable
-            = newChannel(new ByteArrayInputStream(decoded.value))) {
+            = newChannel(new ByteArrayInputStream(decoded.bytes))) {
             final WritableByteChannel channel
                 = newChannel(new ByteArrayOutputStream(BYTES));
             final HexEncoder encoder = new HexEncoderImpl();
@@ -66,10 +66,10 @@ public class WritableHexChannelBenchmark {
     }
 
 
-    public void buf(final DecodedBytes decoded, final int capacity)
+    public void buf(final Decoded decoded, final int capacity)
         throws IOException {
         try (ReadableByteChannel readable
-            = newChannel(new ByteArrayInputStream(decoded.value))) {
+            = newChannel(new ByteArrayInputStream(decoded.bytes))) {
             final WritableByteChannel channel
                 = newChannel(new ByteArrayOutputStream(BYTES));
             final HexEncoder encoder = new HexEncoderImpl();
@@ -82,19 +82,19 @@ public class WritableHexChannelBenchmark {
 
 
     @Benchmark
-    public void buf0x40(final DecodedBytes decoded) throws IOException {
+    public void buf0x40(final Decoded decoded) throws IOException {
         buf(decoded, 0x40);
     }
 
 
     @Benchmark
-    public void buf0x80(final DecodedBytes decoded) throws IOException {
+    public void buf0x80(final Decoded decoded) throws IOException {
         buf(decoded, 0x80);
     }
 
 
     @Benchmark
-    public void buf0xC0(final DecodedBytes decoded) throws IOException {
+    public void buf0xC0(final Decoded decoded) throws IOException {
         buf(decoded, 0xC0);
     }
 

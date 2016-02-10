@@ -25,15 +25,15 @@ import org.openjdk.jmh.annotations.State;
  * @author Jin Kwon &lt;jinahya_at_gmail.com&gt;
  */
 @State(Scope.Benchmark)
-public class DecodedBytes {
+public class Decoded {
 
     static final int BYTES = 1048576;
 
     @Setup
     public void randomize() {
-        current().nextBytes(value);
+        current().nextBytes(bytes);
     }
 
-    final byte[] value = new byte[BYTES];
+    final byte[] bytes = new byte[BYTES];
 
 }
