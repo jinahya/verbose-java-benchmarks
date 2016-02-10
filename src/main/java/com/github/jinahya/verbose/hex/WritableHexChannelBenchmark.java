@@ -16,15 +16,15 @@
 package com.github.jinahya.verbose.hex;
 
 
+import static com.github.jinahya.verbose.hex.DecodedBytes.BYTES;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import static java.nio.ByteBuffer.allocate;
-import java.nio.channels.FileChannel;
-import static java.nio.channels.FileChannel.open;
+import static java.nio.channels.Channels.newChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import static java.nio.file.StandardOpenOption.READ;
-import static java.nio.file.StandardOpenOption.WRITE;
 import org.openjdk.jmh.annotations.Benchmark;
 
 
@@ -35,12 +35,10 @@ import org.openjdk.jmh.annotations.Benchmark;
 public class WritableHexChannelBenchmark {
 
 
-    private static final ByteBuffer buffer = allocate(128);
-
-
     private void copy(final ReadableByteChannel readable,
                       final WritableByteChannel writable)
         throws IOException {
+        final ByteBuffer buffer = allocate(128);
         while (readable.read(buffer) != -1) {
             buffer.flip();
             writable.write(buffer);
@@ -53,78 +51,51 @@ public class WritableHexChannelBenchmark {
     }
 
 
-    private static final int count = 16;
-
-
     @Benchmark
-    public void mark1(final Paths paths) throws IOException {
-        try (FileChannel readable = open(paths.created, READ)) {
-            final FileChannel channel = open(paths.encoded, WRITE);
+    public void aux(final DecodedBytes decoded) throws IOException {
+        try (ReadableByteChannel readable
+            = newChannel(new ByteArrayInputStream(decoded.value))) {
+            final WritableByteChannel channel
+                = newChannel(new ByteArrayOutputStream(BYTES));
             final HexEncoder encoder = new HexEncoderImpl();
             try (WritableByteChannel writable
                 = new WritableHexChannel(channel, encoder)) {
-                for (int i = 0; i < count; i++) {
-                    readable.position(0L);
-                    channel.position(0L);
-                    copy(readable, writable);
-                    channel.force(false);
-                }
+                copy(readable, writable);
+            }
+        }
+    }
+
+
+    public void buf(final DecodedBytes decoded, final int capacity)
+        throws IOException {
+        try (ReadableByteChannel readable
+            = newChannel(new ByteArrayInputStream(decoded.value))) {
+            final WritableByteChannel channel
+                = newChannel(new ByteArrayOutputStream(BYTES));
+            final HexEncoder encoder = new HexEncoderImpl();
+            try (WritableByteChannel writable
+                = new WritableHexChannelEx(channel, encoder, capacity)) {
+                copy(readable, writable);
             }
         }
     }
 
 
     @Benchmark
-    public void buffer0x40(final Paths paths) throws IOException {
-        try (FileChannel readable = open(paths.created, READ)) {
-            final FileChannel channel = open(paths.encoded, WRITE);
-            final HexEncoder encoder = new HexEncoderImpl();
-            try (WritableByteChannel writable
-                = new WritableHexChannelEx(channel, encoder, 0x40)) {
-                for (int i = 0; i < count; i++) {
-                    readable.position(0L);
-                    channel.position(0L);
-                    copy(readable, writable);
-                    channel.force(false);
-                }
-            }
-        }
+    public void buf0x40(final DecodedBytes decoded) throws IOException {
+        buf(decoded, 0x40);
     }
 
 
     @Benchmark
-    public void buffer0x80(final Paths paths) throws IOException {
-        try (FileChannel readable = open(paths.created, READ)) {
-            final FileChannel channel = open(paths.encoded, WRITE);
-            final HexEncoder encoder = new HexEncoderImpl();
-            try (WritableByteChannel writable
-                = new WritableHexChannelEx(channel, encoder, 0x80)) {
-                for (int i = 0; i < count; i++) {
-                    readable.position(0L);
-                    channel.position(0L);
-                    copy(readable, writable);
-                    channel.force(false);
-                }
-            }
-        }
+    public void buf0x80(final DecodedBytes decoded) throws IOException {
+        buf(decoded, 0x80);
     }
 
 
     @Benchmark
-    public void buffer0xC0(final Paths paths) throws IOException {
-        try (FileChannel readable = open(paths.created, READ)) {
-            final FileChannel channel = open(paths.encoded, WRITE);
-            final HexEncoder encoder = new HexEncoderImpl();
-            try (WritableByteChannel writable
-                = new WritableHexChannelEx(channel, encoder, 0xC0)) {
-                for (int i = 0; i < count; i++) {
-                    readable.position(0L);
-                    channel.position(0L);
-                    copy(readable, writable);
-                    channel.force(false);
-                }
-            }
-        }
+    public void buf0xC0(final DecodedBytes decoded) throws IOException {
+        buf(decoded, 0xC0);
     }
 
 }
