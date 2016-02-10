@@ -82,20 +82,26 @@ public class WritableHexChannelBenchmark {
 
 
     @Benchmark
-    public void buf0x40(final Decoded decoded) throws IOException {
+    public void buf64(final Decoded decoded) throws IOException {
         buf(decoded, 0x40);
     }
 
 
     @Benchmark
-    public void buf0x80(final Decoded decoded) throws IOException {
+    public void buf128(final Decoded decoded) throws IOException {
         buf(decoded, 0x80);
     }
 
 
     @Benchmark
-    public void buf0xC0(final Decoded decoded) throws IOException {
-        buf(decoded, 0xC0);
+    public void buf192(final Decoded decoded) throws IOException {
+        buf(decoded, 192);
+    }
+
+
+    @Benchmark
+    public void buf256(final Decoded decoded) throws IOException {
+        buf(decoded, 256);
     }
 
 }
